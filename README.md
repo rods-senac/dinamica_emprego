@@ -63,7 +63,7 @@ Embora os modelos large tenham apresentado melhor performance em relação aos m
 
 A curva de aprendizado ao longo de oito épocas de treinamento, considerando o F1-score de validação e a loss sobre o conjunto de treino. Observa-se um comportamento consistente de aprendizado em todos os modelos, com crescimento rápido no F1-score nas primeiras três épocas e posterior estabilização. Em termos de loss, os modelos maiores também apresentam uma convergência mais acentuada e menor valor residual ao final do treinamento, especialmente o BERTimbau Large, cuja perda permanece abaixo dos demais. Esses resultados indicam não apenas maior capacidade de generalização dos modelos de maior porte, como também uma adaptação mais eficaz ao domínio específico das descrições de vagas de emprego.
 
-![alt text](image.png)
+![alt text](epochs.png)
 
 
 ### 4. Prévia dos resultados
