@@ -14,13 +14,29 @@ Ao mapear as habilidades, conhecimentos e atitudes requeridas em diferentes seto
 Os dados utilizados nesse trabalho referem-se a vagas de emprego reais postadas por diferentes empresas em três portais de empregos. Para obter acesso a esses dados foi criado um crawler que busca as informações a cada dois dias e os armazena em banco de dados. Os dados apresentam características não estruturadas e passam por pequenas manipulações para identificar os campos e as informações que serão populadas nas tabelas armazenadas no banco. Esse processo leva em consideração três diferentes portais de vagas de emprego: i) Banco nacional de empregos , ii) Infojobs  e iii) Vagas . O início da raspagem desses dados se deu em Fevereiro de 2023 e é atualizado a cada três dias e consolidado mensalmente.
 
 Os dados advindos do crawler são armazenados em:
-- servidor "SRVVPRPDGPA01"
-- Banco de dados: DBMercadoTrabalho
-- Esquema: job_vacancy
-- Tabela: job_vacancy_post
+- *Servidor*: "SRVVPRPDGPA01"
+- *Banco de dados*: DBMercadoTrabalho
+- *Esquema*: job_vacancy
+- *Tabela*: job_vacancy_post
 
 ## 3. Metodologia de análise
 ### 3.1. Categorização Título - CBO
+
+A categorização do Título das Vagas com a Classificação Brasileira de Ocupações é realizada a partir de análise textuais e uso de IA Generativa (GPT). A metodologia é baseada em estudo similar realizado pela *Economic Statistics Centre of Excellence*
+
+Contrui-se um código que busca a classificação em 5 etapas:
+
+- Correspondência exata: Procura o título exato no índice da CBO. Se encontrar, retorna o o nome e o código da ocupação específica (cerca de 36% da base de teste).
+
+- Três palavras: Se não encontrar correspondência exata, busca por três palavras do título que estejam em alguma ocupação (ignorando palavras irrelevantes). Escolhe os códigos CBO mais comum entre os encontrados. Nessa etapa utiliza-se de prompt com o modelo GPT-4o para encontrar a ocupação mais próxima dentre as encontradas na etapa de similaridade
+
+
+- Duas palavras: Se não encontrar correspondência nas etapas anteriores, busca por duas palavras do título que estejam em alguma ocupação (ignorando palavras irrelevantes). Escolhe os códigos CBO mais comum entre os encontrados. Nessa etapa utiliza-se de prompt com o modelo GPT-4o para encontrar a ocupação mais próxima dentre as encontradas na etapa de similaridade
+
+- TF-IDF: Usa similaridade de texto entre o título do avaliador e descrições do índice, por meio de uma matriz TF-IDF. Se a similaridade for maior que 0.1, atribui o código correspondente.
+
+
+
 ### 3.2. Extração de competências nas descrições das vagas: modelos BERT
 
 Para a extração de competências das vagas de emprego foi necessário a conceituação de quais atributos são entendidos como uma competência. Para esse estudo utilizamos a conceituação advinda de Planos Curriculares Nacionais da instituição X de ensino profissional e tecnológica (EPT) de referência no Brasil. Assim, entende-se competência em três magnitudes:
@@ -40,7 +56,7 @@ A metodologia deste estudo foi baseada em três etapas principais, além da rasp
 Os modelos foram treinados por até 8 épocas com taxa de aprendizado de 2e-5, e batch size de 8. O treinamento foi conduzido com o Trainer da Hugging Face utilizando métricas personalizadas de precision, recall e F1-score, tanto nas formas micro quanto macro. Todos os treinamentos foram realizados em ambiente Python. Os modelos foram salvos e avaliados ao final de cada época com validação baseada no melhor F1.
 
 
-#### 3.3.1. Resultados dos modelos BERT
+#### 3.2.1. Resultados dos modelos BERT
 
 Os modelos aqui experimentados revelam variações significativas no desempenho das arquiteturas aplicadas à tarefa NER em descrições de vagas de emprego. A Tabela 1 apresenta os valores de precision, recall e F1-score obtidos por cada modelo avaliado. Observa-se que os modelos de maior capacidade, como o BERTimbau Large (F1 = 0,676) e o RoBERTa Large (F1 = 0,681), apresentaram os melhores desempenhos gerais.
 
@@ -65,6 +81,6 @@ A curva de aprendizado ao longo de oito épocas de treinamento, considerando o F
 
 ![alt text](epochs.png)
 
+Os resultados obtidos evidenciam a eficácia dos modelos linguística e contextualmente adaptados, com destaque para o BERTimbau Large e RoBERTa Large, que apresentram os melhore desempenhos entre os modelos avaliados, tanto em métricas agregadas quanto em estabilidade durante o treinamento. Embora os valores absolutos de F1-score possam parecer modestos (variando entre 0,63 e 0,67), eles se mostram consistentes com benchmarks da literatura em tarefas de reconhecimento de entidades nomeadas (NER), especialmente quando se trata de categorias semânticas mais subjetivas e com variação linguística, como atitudes e conhecimentos. Além disso, os modelos demonstraram curvas de aprendizado estáveis e sem sinais de overfitting, reforçando sua robustez diante da complexidade dos dados analisados.
 
 ### 4. Prévia dos resultados
-
